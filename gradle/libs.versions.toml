@@ -1,31 +1,60 @@
 [versions]
 accompanistPermissions = "0.37.3"
 agp = "8.13.1"
+androidxMedia3Exoplayer = "1.8.0"
+androidxMedia3ExoplayerVersion = "1.8.0"
+androidxMedia3Ui = "1.8.0"
 coilCompose = "2.7.0"
-kotlin = "2.0.21"
+firebaseBom = "34.6.0"
+gson = "2.13.2"
+guava = "33.5.0-android"
+kotlin = "2.2.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.1"
-composeBom = "2024.09.00"
+composeBom = "2025.12.00"
 material = "1.10.0"
+materialIconsExtended = "1.7.8"
+media = "1.7.1"
 media3Exoplayer = "1.8.0"
+media3ExoplayerVersion = "1.8.0"
+media3Session = "1.8.0"
+media3SessionVersion = "1.8.0"
+media3Ui = "1.8.0"
+media3UiVersion = "1.8.0"
 ui = "1.10.0"
 navigationCompose = "2.9.6"
 volley = "1.2.1"
 foundation = "1.10.0"
+firebaseCrashlyticsBuildtools = "3.0.6"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "material" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-media = { module = "androidx.media:media", version.ref = "media" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
+androidx-media3-exoplayer-v131 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3ExoplayerVersion" }
+androidx-media3-exoplayer-v140 = { module = "androidx.media3:media3-exoplayer", version.ref = "media3ExoplayerVersion" }
+androidx-media3-exoplayer-v150 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3Exoplayer" }
+androidx-media3-session = { module = "androidx.media3:media3-session", version.ref = "media3ExoplayerVersion" }
+androidx-media3-session-v131 = { module = "androidx.media3:media3-session", version.ref = "media3SessionVersion" }
+androidx-media3-session-v150 = { module = "androidx.media3:media3-session", version.ref = "media3Session" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Exoplayer" }
+androidx-media3-ui-v131 = { module = "androidx.media3:media3-ui", version.ref = "androidxMedia3Ui" }
+androidx-media3-ui-v140 = { module = "androidx.media3:media3-ui", version.ref = "media3Ui" }
+androidx-media3-ui-v150 = { module = "androidx.media3:media3-ui", version.ref = "media3UiVersion" }
 androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -42,9 +71,9 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
-
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }

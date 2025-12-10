@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -39,6 +40,7 @@ android {
     buildFeatures {
         compose = true
     }
+    experimentalProperties["android.application.experimental.enable16keAlignment"] = true
 }
 
 dependencies {
@@ -65,8 +67,15 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation(libs.androidx.compose.material.icons.extended)
 
+
+    // UPDATE to the latest Firebase BoM
+    //noinspection GradleDependency
+    implementation(platform(libs.firebase.bom))
+
+    // Your Crashlytics dependencies (no versions needed here)
+    implementation(libs.firebase.crashlytics)
 
 // Compose
     implementation(libs.androidx.ui)
@@ -75,4 +84,14 @@ dependencies {
     implementation(libs.coil.compose)
 // Permissions
     implementation(libs.accompanist.permissions)
+
+    implementation(libs.guava) // Or latest version
+    implementation(libs.gson)
+
+    // Media3 / ExoPlayer
+    implementation(libs.androidx.media3.exoplayer.v150)
+    implementation(libs.androidx.media3.session.v150)
+    implementation(libs.androidx.media3.ui.v150)
+// (optional) for MediaNotification helper if needed
+    implementation(libs.androidx.media)
 }

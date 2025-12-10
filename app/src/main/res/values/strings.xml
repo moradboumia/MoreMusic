@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MoreMusic</string>
+    <string name="title_activity_music_service">MusicService</string>
 </resources>
