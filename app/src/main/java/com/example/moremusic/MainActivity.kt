@@ -4,7 +4,6 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Pause
-import com.google.common.util.concurrent.MoreExecutors
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
 // ===========================================================================
@@ -13,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
-import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Context
@@ -55,16 +53,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.ModalBottomSheetLayout
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.ModalBottomSheetValue
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
@@ -76,7 +72,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -93,7 +88,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewModelScope
 
 import androidx.media3.common.MediaItem
-import androidx.media3.exoplayer.ExoPlayer
 
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -105,7 +99,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.MediaMetadata
@@ -113,15 +106,16 @@ import androidx.media3.common.Player
 import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import androidx.media3.session.MediaLibraryService
-import androidx.media3.session.MediaSession
 import androidx.media3.session.SessionToken
-import androidx.media3.ui.PlayerNotificationManager
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.jvm.java
 import kotlinx.parcelize.Parcelize
+
 
 @Parcelize
 data class Playlist(
@@ -185,7 +179,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     // In MusicViewModel class
 
     // State for the main song menu
-    private val _songForMenu = MutableStateFlow<Song?>(null)
+    private val _songForMenu = MutableStateFlow<Pair<Song, Long?>?>(null)
     val songForMenu = _songForMenu.asStateFlow()
 
     // A. NEW STATE TO CONTROL THE PLAY QUEUE/PLAYLIST SHEET
@@ -263,10 +257,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         _isQueueSheetVisible.value = false
     }
 
-    fun showMenuForSong(song: Song) {
-        _songForMenu.value = song
+    fun showMenuForSong(song: Song, playlistId: Long? = null) {
+        _songForMenu.value = Pair(song, playlistId)
     }
-
 
     fun dismissMenu() {
         _songForMenu.value = null
@@ -369,6 +362,24 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
             _playQueue.value = items // Directly update the state flow
         }
     }
+
+    fun removeSongFromPlaylist(song: Song, playlistId: Long) {
+        val updatedPlaylists = _playlists.value.map {
+            // Find the correct playlist
+            if (it.id == playlistId) {
+                // Create a new list of song IDs excluding the one to be removed
+                val updatedSongIds = it.songIds.filter { id -> id != song.id }
+                it.copy(songIds = updatedSongIds)
+            } else {
+                it
+            }
+        }
+        _playlists.value = updatedPlaylists
+        playlistManager.savePlaylists(updatedPlaylists)
+        // Optionally, show a toast message
+        _toastMessage.value = "Removed \"${song.title}\" from playlist"
+    }
+
 
     // -------------------- Position Poll ------------------------
     private fun startPositionPolling() {
@@ -611,8 +622,10 @@ class MusicViewModelFactory(private val application: Application) :
 @Composable
 fun SongMenuSheet(
     song: Song,
-    vm: MusicViewModel
+    vm: MusicViewModel,
+    playlistId: Long?
 ) {
+    val context = LocalContext.current
     Column(
         Modifier
             .background(Color(0xFF2C2C2C)) // Dark background for the sheet
@@ -669,11 +682,28 @@ fun SongMenuSheet(
             vm.toggleLike(song)
             vm.dismissMenu()
         }
-        MenuItem(icon = Icons.Default.Share, text = "Share") { vm.dismissMenu() }
-        MenuItem(icon = Icons.Default.PlaylistAdd, text = "Add to playlist") { vm.showAddToPlaylistSheet(song) }
-        MenuItem(icon = Icons.Default.Delete, text = "Delete from device", isDestructive = true) {
-            vm.deleteSong(song)
-            vm.dismissMenu()
+        MenuItem(icon = Icons.Default.Share, text = "Share") {
+            shareSong(context, song)
+            vm.dismissMenu() }
+        MenuItem(icon = Icons.AutoMirrored.Filled.PlaylistAdd, text = "Add to playlist") { vm.showAddToPlaylistSheet(song) }
+        if (playlistId != null) {
+            MenuItem(
+                icon = Icons.Default.PlaylistRemove,
+                text = "Remove from playlist",
+                isDestructive = true
+            ) {
+                vm.removeSongFromPlaylist(song, playlistId)
+                vm.dismissMenu()
+            }
+        } else {
+            MenuItem(
+                icon = Icons.Default.Delete,
+                text = "Delete from device",
+                isDestructive = true
+            ) {
+                vm.deleteSong(song)
+                vm.dismissMenu()
+            }
         }
     }
 }
@@ -687,7 +717,7 @@ private fun MenuItem(
     isDestructive: Boolean = false,
     onClick: () -> Unit
 ) {
-    val contentColor = if (isDestructive) Color.Red else tint
+    val contentColor = if (isDestructive) Color(0xFF9F0000) else tint
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -805,7 +835,7 @@ fun AlbumScreen(nav: NavController, vm: MusicViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text("Albums", fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                Text("Albums", fontSize = 26.sp, color = Color(0xFFE40074), fontWeight = FontWeight.SemiBold)
             }
 
             // --- Grid of Albums ---
@@ -1000,26 +1030,23 @@ fun MusicApp() {
     // ------------------ 🟢 START: CORRECTED BOTTOM SHEET LOGIC 🟢 ------------------
 
     // 1. State for the Song Options Menu
-    val songForMenu by vm.songForMenu.collectAsState()
-    val menuSheetState = rememberModalBottomSheetState(
+        val menuState by vm.songForMenu.collectAsState() // This is now a Pair or null
+        val songForMenu = menuState?.first
+        val playlistIdForMenu = menuState?.second
+        val menuSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true
     )
-
-    // This effect shows/hides the sheet based on ViewModel state
-    LaunchedEffect(songForMenu) {
-        if (songForMenu != null) {
-            menuSheetState.show()
-        } else {
-            // Only hide if it's not already hidden, to avoid animation conflicts
-            if (menuSheetState.isVisible) {
-                menuSheetState.hide()
+        LaunchedEffect(menuState) {
+            if (menuState != null) {
+                menuSheetState.show()
+            } else {
+                if (menuSheetState.isVisible) {
+                    menuSheetState.hide()
+                }
             }
         }
-    }
 
-    // ⭐️ CORRECTION 1: This is the crucial part.
-    // It syncs the ViewModel when the user manually dismisses the sheet.
     LaunchedEffect(menuSheetState.isVisible) {
         if (!menuSheetState.isVisible) {
             vm.dismissMenu() // Resets the ViewModel's state to null
@@ -1087,7 +1114,7 @@ fun MusicApp() {
                 scrimColor = Color.Black.copy(alpha = 0.5f),
                 sheetContent = {
                     songForMenu?.let { song ->
-                        SongMenuSheet(song = song, vm = vm)
+                        SongMenuSheet(song = song, vm = vm, playlistId = playlistIdForMenu)
                     } ?: Spacer(modifier = Modifier.height(1.dp)) // Spacer for when hidden
                 }
             ) {
@@ -1334,7 +1361,7 @@ fun HomeScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boolea
                                 vm.playSong(song, filteredSongs)
                                 nav.navigate("player")
                             },
-                            onShowMenu = { vm.showMenuForSong(it) },
+                            onShowMenu = { vm.showMenuForSong(it, null) },
                             isLiked = vm.likedSongs.contains(song)
                         )
                     }
@@ -1436,6 +1463,68 @@ fun SongRow(
         }
     }
 }
+@Composable
+fun PlaylistSongRow(
+    song: Song,
+    onClick: () -> Unit,
+    onShowMenu: (Song) -> Unit, // This is not optional
+    isLiked: Boolean
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 20.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // --- ALBUM ART ---
+        Box(
+            Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(8.dp))
+        ) {
+            AsyncImage(
+                model = song.albumArt,
+                contentDescription = song.title,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.DarkGray, RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        Spacer(Modifier.width(14.dp))
+
+        // --- TITLE + ARTIST ---
+        Column(Modifier.weight(1f)) {
+            Text(
+                song.title,
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                song.artist ?: "Unknown",
+                color = Color.LightGray,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Spacer(Modifier.width(14.dp))
+
+        // This Icon's onClick will always have the correct playlistId context
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "More Options",
+            tint = Color.Gray,
+            modifier = Modifier
+                .size(24.dp)
+                .clickable { onShowMenu(song) }
+        )
+    }
+}
+
 
 
 // ===========================================================================
@@ -1446,10 +1535,10 @@ fun MiniPlayer(song: Song, isPlaying: Boolean, vm: MusicViewModel, openPlayer: (
     Surface(
         tonalElevation = 8.dp,
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF480320),
+        color = Color(0xFF3D1427),
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp)
+            .height(56.dp)
             .clickable { openPlayer() }
     ) {
         Row(
@@ -1462,16 +1551,22 @@ fun MiniPlayer(song: Song, isPlaying: Boolean, vm: MusicViewModel, openPlayer: (
                 model = song.albumArt,
                 contentDescription = song.title,
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(50.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
 
             Spacer(Modifier.width(12.dp))
 
+            val artist = song.artist?.takeIf { it.isNotBlank() } ?: "Unknown"
+
             Column(Modifier.weight(1f)) {
-                Text(song.title, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(song.artist ?: "Unknown", color = Color.LightGray, fontSize = 13.sp)
+                Text(
+                    text = "${song.title} ($artist)",
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
 
             IconButton(onClick = { vm.togglePlayPause() }) {
@@ -1546,7 +1641,7 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
              IconButton(onClick = {
                  // Show the menu for the currently playing song
                  current?.let { song ->
-                     vm.showMenuForSong(song)
+                     vm.showMenuForSong(song, null)
                  }
              }){
                 Icon(Icons.Default.MoreVert, contentDescription = null, tint = White)
@@ -1675,7 +1770,7 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
                         if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                         contentDescription = null,
                         tint = DarkPink,
-                        modifier = Modifier.padding(12.dp)
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }
@@ -1768,7 +1863,7 @@ fun BottomNavigationBar(nav: NavHostController, modifier: Modifier = Modifier) {
             ) { nav.navigate("home") }
 
             BottomItem(
-                label = "Charts",
+                label = "Stats",
                 icon = Icons.Default.ShowChart,
                 selected = currentRoute == "charts"
             ) { nav.navigate("charts") }
@@ -1841,7 +1936,7 @@ fun ChartsScreen(nav: NavHostController, vm: MusicViewModel) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Charts", fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text("Charts", fontSize = 26.sp, color = Color(0xFFE40074), fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -2043,7 +2138,7 @@ fun LibraryScreen(nav: NavHostController, vm: MusicViewModel) {
                 Text(
                     "Library",
                     fontSize = 26.sp,
-                    color = Color.White,
+                    color = Color(0xFFE40074),
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(Modifier.width(28.dp)) // empty right side for symmetry
@@ -2223,7 +2318,7 @@ fun MyMusicScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boo
                             },
                             onDelete = { vm.deleteSong(it) },
                             onToggleLike = { vm.toggleLike(it) },
-                            onShowMenu = { vm.showMenuForSong(it) }, // <-- Pass the ViewModel function
+                            onShowMenu = { vm.showMenuForSong(it, null) }, // <-- Pass the ViewModel function
                             isLiked = vm.likedSongs.contains(song)
                         )
                     }
@@ -2412,7 +2507,7 @@ fun FavoratesScreen(nav: NavHostController, vm: MusicViewModel) {
                                 nav.navigate("player")
                             },
                             onToggleLike = { vm.toggleLike(it) },
-                            onShowMenu = { vm.showMenuForSong(it) } // <-- Pass the ViewModel function
+                            onShowMenu = { vm.showMenuForSong(it, null) } // <-- Pass the ViewModel function
                         )
                     }
                 }

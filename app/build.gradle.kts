@@ -23,7 +23,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -55,6 +56,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.volley)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.firebase.analytics)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -70,12 +72,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
 
 
-    // UPDATE to the latest Firebase BoM
-    //noinspection GradleDependency
-    implementation(platform(libs.firebase.bom))
-
-    // Your Crashlytics dependencies (no versions needed here)
-    implementation(libs.firebase.crashlytics)
 
 // Compose
     implementation(libs.androidx.ui)

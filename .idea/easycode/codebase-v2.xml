@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/app/src/androidTest/java/com/example/moremusic/ExampleInstrumentedTest.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/ui/theme/Color.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/ui/theme/Theme.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/ui/theme/Type.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/FavoritesManager.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/MainActivity.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/PLaybackService.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/main/java/com/example/moremusic/UriAdapter.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/src/test/java/com/example/moremusic/ExampleUnitTest.kt;/home/morad/AndroidStudioProjects/MoreMusic/app/build.gradle.kts;/home/morad/AndroidStudioProjects/MoreMusic/build.gradle.kts;/home/morad/AndroidStudioProjects/MoreMusic/settings.gradle.kts" />
+  </component>
+</project>

@@ -76,13 +76,16 @@ fun PlaylistDetailScreen(
             } else {
                 LazyColumn {
                     items(songsInPlaylist, key = { it.id }) { song ->
-                        SongRow(
+                        // ⭐️⭐️⭐️ THIS IS THE ONLY CHANGE YOU NEED ⭐️⭐️⭐️
+                        // Rename this function call from "SongRow" to "PlaylistSongRow"
+                        PlaylistSongRow(
                             song = song,
                             onClick = {
                                 vm.playSong(song, songsInPlaylist)
                                 nav.navigate("player")
                             },
-                            onShowMenu = { vm.showMenuForSong(it) },
+                            // This onShowMenu lambda is now passed to the correct, unambiguous composable
+                            onShowMenu = { vm.showMenuForSong(it, playlistId) },
                             isLiked = vm.likedSongs.contains(song)
                         )
                     }
