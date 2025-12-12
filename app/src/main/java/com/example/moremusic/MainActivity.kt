@@ -1,14 +1,6 @@
 package com.example.moremusic
 
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Pause
-import coil.request.ImageRequest
-import androidx.compose.ui.platform.LocalContext
-// ===========================================================================
-// IMPORTS
-// ===========================================================================
+import com.example.moremusic.ui.theme.theme.MoreMusicTheme
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
@@ -17,35 +9,42 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-
-
-import android.media.AudioDeviceInfo
-import android.media.AudioManager
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.widget.Toast
-
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.core.tween
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -54,20 +53,68 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.ModalBottomSheetLayout
-//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.ModalBottomSheetValue
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.PlaylistPlay
+import androidx.compose.material.icons.filled.PlaylistRemove
+import androidx.compose.material.icons.filled.QueryStats
+import androidx.compose.material.icons.filled.QueueMusic
+import androidx.compose.material.icons.filled.Repeat
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,31 +123,19 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewModelScope
-
-import androidx.media3.common.MediaItem
-
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
@@ -108,14 +143,20 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.analytics
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.jvm.java
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-
+import kotlin.jvm.java
 
 @Parcelize
 data class Playlist(
@@ -151,6 +192,7 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     private val _current = MutableStateFlow<Song?>(null)
     val current = _current.asStateFlow()
     private val _playerState = MutableStateFlow<Player?>(null)
+
     val playerState: StateFlow<Player?> = _playerState
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying = _isPlaying.asStateFlow()
@@ -829,13 +871,15 @@ fun AlbumScreen(nav: NavController, vm: MusicViewModel) {
         Column(Modifier.fillMaxSize()) {
             // --- Top Bar ---
             Row(
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ) {
-                Text("Albums", fontSize = 26.sp, color = Color(0xFFE40074), fontWeight = FontWeight.SemiBold)
+            ) {        Spacer(Modifier.height(60.dp))
+
+                Text("Albums", fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
             }
 
             // --- Grid of Albums ---
@@ -917,7 +961,19 @@ fun AlbumGridItem(album: Album, onClick: () -> Unit) {
         )
     }
 }
-
+class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MusicViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return MusicViewModel(application) as T
+        }
+        if (modelClass.isAssignableFrom(ThemeViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ThemeViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 // ===========================================================================
 // MAIN ACTIVITY & UI
 // ===========================================================================
@@ -925,9 +981,10 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            MusicApp()
+            MoreMusicTheme { MusicApp() }
         }
     }
 }
@@ -972,71 +1029,71 @@ fun MusicApp() {
         },
         scrimColor = Color.Black.copy(alpha = 0.6f)
     ) {
-    val permission = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_AUDIO else Manifest.permission.READ_EXTERNAL_STORAGE
-    var hasPermission by remember { mutableStateOf(false) }
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        hasPermission = granted
-        if (granted) vm.loadLocalMusic(context)
-    }
-    var mediaController by remember { mutableStateOf<Player?>(null) }
-    val sessionToken = remember { SessionToken(context, ComponentName(context, PlaybackService::class.java)) }
-    val songToAdd by vm.songToAdd.collectAsState()
-    val addToPlaylistSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
-    val toastMessage by vm.toastMessage.collectAsState()
-    LaunchedEffect(toastMessage) {
-        toastMessage?.let { message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            vm.clearToastMessage() // Clear the message so it doesn't show again on recomposition
+        val permission = if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_AUDIO else Manifest.permission.READ_EXTERNAL_STORAGE
+        var hasPermission by remember { mutableStateOf(false) }
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            hasPermission = granted
+            if (granted) vm.loadLocalMusic(context)
         }
-    }
-    LaunchedEffect(songToAdd) {
-        if (songToAdd != null) addToPlaylistSheetState.show() else addToPlaylistSheetState.hide()
-    }
-    LaunchedEffect(addToPlaylistSheetState.isVisible) {
-        if (!addToPlaylistSheetState.isVisible) {
-            vm.dismissAddToPlaylistSheet()
+        var mediaController by remember { mutableStateOf<Player?>(null) }
+        val sessionToken = remember { SessionToken(context, ComponentName(context, PlaybackService::class.java)) }
+        val songToAdd by vm.songToAdd.collectAsState()
+        val addToPlaylistSheetState = rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true
+        )
+        val toastMessage by vm.toastMessage.collectAsState()
+        LaunchedEffect(toastMessage) {
+            toastMessage?.let { message ->
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                vm.clearToastMessage() // Clear the message so it doesn't show again on recomposition
+            }
         }
-    }
-    DisposableEffect(sessionToken) {
-        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        controllerFuture.addListener({
-            mediaController = controllerFuture.get()
-        }, ContextCompat.getMainExecutor(context))
-        onDispose { mediaController?.release() }
-    }
-    LaunchedEffect(mediaController) {
-        mediaController?.let { vm.initPlayer(it) }
-    }
-    val isPlaying by vm.isPlaying.collectAsState()
-    LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            val intent = Intent(context, PlaybackService::class.java)
-            context.startService(intent)
+        LaunchedEffect(songToAdd) {
+            if (songToAdd != null) addToPlaylistSheetState.show() else addToPlaylistSheetState.hide()
         }
-    }
-    LaunchedEffect(Unit) {
-        val granted = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-        if (granted) {
-            hasPermission = true
-            vm.loadLocalMusic(context)
-        } else launcher.launch(permission)
-    }
-    // --- End of Setup ---
+        LaunchedEffect(addToPlaylistSheetState.isVisible) {
+            if (!addToPlaylistSheetState.isVisible) {
+                vm.dismissAddToPlaylistSheet()
+            }
+        }
+        DisposableEffect(sessionToken) {
+            val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+            controllerFuture.addListener({
+                mediaController = controllerFuture.get()
+            }, ContextCompat.getMainExecutor(context))
+            onDispose { mediaController?.release() }
+        }
+        LaunchedEffect(mediaController) {
+            mediaController?.let { vm.initPlayer(it) }
+        }
+        val isPlaying by vm.isPlaying.collectAsState()
+        LaunchedEffect(isPlaying) {
+            if (isPlaying) {
+                val intent = Intent(context, PlaybackService::class.java)
+                context.startService(intent)
+            }
+        }
+        LaunchedEffect(Unit) {
+            val granted = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+            if (granted) {
+                hasPermission = true
+                vm.loadLocalMusic(context)
+            } else launcher.launch(permission)
+        }
+        // --- End of Setup ---
 
 
-    // ------------------ 🟢 START: CORRECTED BOTTOM SHEET LOGIC 🟢 ------------------
+        // ------------------ 🟢 START: CORRECTED BOTTOM SHEET LOGIC 🟢 ------------------
 
-    // 1. State for the Song Options Menu
+        // 1. State for the Song Options Menu
         val menuState by vm.songForMenu.collectAsState() // This is now a Pair or null
         val songForMenu = menuState?.first
         val playlistIdForMenu = menuState?.second
         val menuSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
+            initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true
+        )
         LaunchedEffect(menuState) {
             if (menuState != null) {
                 menuSheetState.show()
@@ -1047,102 +1104,102 @@ fun MusicApp() {
             }
         }
 
-    LaunchedEffect(menuSheetState.isVisible) {
-        if (!menuSheetState.isVisible) {
-            vm.dismissMenu() // Resets the ViewModel's state to null
-        }
-    }
-
-
-    // 2. State for the "Up Next" Queue Menu
-    val isQueueSheetVisible by vm.isQueueSheetVisible.collectAsState()
-    val queueSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
-
-    // This effect shows/hides the sheet based on ViewModel state
-    LaunchedEffect(isQueueSheetVisible) {
-        if (isQueueSheetVisible) {
-            queueSheetState.show()
-        } else {
-            if (queueSheetState.isVisible) {
-                queueSheetState.hide()
+        LaunchedEffect(menuSheetState.isVisible) {
+            if (!menuSheetState.isVisible) {
+                vm.dismissMenu() // Resets the ViewModel's state to null
             }
         }
-    }
 
-    // ⭐️ CORRECTION 2: Sync ViewModel for the queue sheet as well.
-    LaunchedEffect(queueSheetState.isVisible) {
-        if (!queueSheetState.isVisible) {
-            vm.hideQueueSheet() // Resets the ViewModel's state to false
-        }
-    }
 
-    ModalBottomSheetLayout(
-        sheetState = addToPlaylistSheetState,
-        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        scrimColor = Color.Black.copy(alpha = 0.5f),
-        sheetContent = {
-            val playlists by vm.playlists.collectAsState()
-            AddToPlaylistSheet(
-                playlists = playlists,
-                onPlaylistClick = { playlist ->
-                    songToAdd?.let { song ->
-                        vm.addSongToPlaylist(song, playlist)
-                    }
-                    vm.dismissAddToPlaylistSheet()
+        // 2. State for the "Up Next" Queue Menu
+        val isQueueSheetVisible by vm.isQueueSheetVisible.collectAsState()
+        val queueSheetState = rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true
+        )
+
+        // This effect shows/hides the sheet based on ViewModel state
+        LaunchedEffect(isQueueSheetVisible) {
+            if (isQueueSheetVisible) {
+                queueSheetState.show()
+            } else {
+                if (queueSheetState.isVisible) {
+                    queueSheetState.hide()
                 }
-            )
+            }
         }
-    ) {
+
+        // ⭐️ CORRECTION 2: Sync ViewModel for the queue sheet as well.
+        LaunchedEffect(queueSheetState.isVisible) {
+            if (!queueSheetState.isVisible) {
+                vm.hideQueueSheet() // Resets the ViewModel's state to false
+            }
+        }
+
         ModalBottomSheetLayout(
-            sheetState = queueSheetState,
+            sheetState = addToPlaylistSheetState,
             sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             scrimColor = Color.Black.copy(alpha = 0.5f),
             sheetContent = {
-                if (isQueueSheetVisible) {
-                    QueueSheet(vm = vm)
-                } else {
-                    Spacer(modifier = Modifier.height(1.dp))
-                }
+                val playlists by vm.playlists.collectAsState()
+                AddToPlaylistSheet(
+                    playlists = playlists,
+                    onPlaylistClick = { playlist ->
+                        songToAdd?.let { song ->
+                            vm.addSongToPlaylist(song, playlist)
+                        }
+                        vm.dismissAddToPlaylistSheet()
+                    }
+                )
             }
         ) {
             ModalBottomSheetLayout(
-                sheetState = menuSheetState,
+                sheetState = queueSheetState,
                 sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                 scrimColor = Color.Black.copy(alpha = 0.5f),
                 sheetContent = {
-                    songForMenu?.let { song ->
-                        SongMenuSheet(song = song, vm = vm, playlistId = playlistIdForMenu)
-                    } ?: Spacer(modifier = Modifier.height(1.dp)) // Spacer for when hidden
+                    if (isQueueSheetVisible) {
+                        QueueSheet(vm = vm)
+                    } else {
+                        Spacer(modifier = Modifier.height(1.dp))
+                    }
                 }
             ) {
-                // Your main app content (NavHost)
-                MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFFE40074))) {
-                    NavHost(navController = nav, startDestination = "home") {
-                        composable("home") { HomeScreen(nav, vm, hasPermission) }
-                        composable("my_music") { MyMusicScreen(nav, vm, hasPermission) }
-                        composable("player") { PlayerScreen(nav, vm) }
-                        composable("charts") { ChartsScreen(nav, vm) }
-                        composable("albums") { AlbumScreen(nav, vm) }
-                        composable("library") { LibraryScreen(nav, vm) }
-                        composable("playlists") { PlaylistsScreen(nav, vm) }
-                        composable("favorates_screen") { FavoratesScreen(nav, vm) }
-                        composable("playlist_detail/{playlistId}") { backStackEntry ->
-                            val playlistId =
-                                backStackEntry.arguments?.getString("playlistId")?.toLongOrNull()
-                            if (playlistId != null) {
-                                PlaylistDetailScreen(playlistId = playlistId, nav = nav, vm = vm)
+                ModalBottomSheetLayout(
+                    sheetState = menuSheetState,
+                    sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                    scrimColor = Color.Black.copy(alpha = 0.5f),
+                    sheetContent = {
+                        songForMenu?.let { song ->
+                            SongMenuSheet(song = song, vm = vm, playlistId = playlistIdForMenu)
+                        } ?: Spacer(modifier = Modifier.height(1.dp)) // Spacer for when hidden
+                    }
+                ) {
+                    // Your main app content (NavHost)
+                    MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFFE40074))) {
+                        NavHost(navController = nav, startDestination = "home") {
+                            composable("home") { HomeScreen(nav, vm, hasPermission) }
+                            composable("my_music") { MyMusicScreen(nav, vm, hasPermission) }
+                            composable("player") { PlayerScreen(nav, vm) }
+                            composable("charts") { ChartsScreen(nav, vm) }
+                            composable("albums") { AlbumScreen(nav, vm) }
+                            composable("library") { LibraryScreen(nav, vm) }
+                            composable("playlists") { PlaylistsScreen(nav, vm) }
+                            composable("favorates_screen") { FavoratesScreen(nav, vm) }
+                            composable("playlist_detail/{playlistId}") { backStackEntry ->
+                                val playlistId =
+                                    backStackEntry.arguments?.getString("playlistId")?.toLongOrNull()
+                                if (playlistId != null) {
+                                    PlaylistDetailScreen(playlistId = playlistId, nav = nav, vm = vm)
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        // ------------------ 🟢 END: CORRECTED BOTTOM SHEET LOGIC 🟢 ------------------
     }
-    // ------------------ 🟢 END: CORRECTED BOTTOM SHEET LOGIC 🟢 ------------------
-}
 }
 
 // In MainActivity.kt
@@ -1256,11 +1313,9 @@ fun HomeScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boolea
         Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
+            .padding(top = 40.dp)
     ) {
-
         Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(18.dp))
-
             // --- Top Bar (Stays static at the top) ---
             Row(
                 Modifier
@@ -1621,7 +1676,7 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(46.dp))
 
         // ---------- TOP BAR ----------
         Row(
@@ -1638,12 +1693,12 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
                 Text("Local Songs", color = White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
 
-             IconButton(onClick = {
-                 // Show the menu for the currently playing song
-                 current?.let { song ->
-                     vm.showMenuForSong(song, null)
-                 }
-             }){
+            IconButton(onClick = {
+                // Show the menu for the currently playing song
+                current?.let { song ->
+                    vm.showMenuForSong(song, null)
+                }
+            }){
                 Icon(Icons.Default.MoreVert, contentDescription = null, tint = White)
             }
         }
@@ -1922,12 +1977,10 @@ fun ChartsScreen(nav: NavHostController, vm: MusicViewModel) {
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
     ) {
-        // Use a LazyColumn for the main scrollable content
-        LazyColumn(
+            LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 120.dp) // Space for mini-player + nav bar
+            contentPadding = PaddingValues(bottom = 60.dp,top=30.dp) // Space for mini-player + nav bar
         ) {
-            // --- Top Bar ---
             item {
                 Row(
                     modifier = Modifier
@@ -1936,11 +1989,9 @@ fun ChartsScreen(nav: NavHostController, vm: MusicViewModel) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Charts", fontSize = 26.sp, color = Color(0xFFE40074), fontWeight = FontWeight.SemiBold)
+                    Text("Stats", fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
                 }
             }
-
-            // --- Top Songs Section ---
             item {
                 ChartSection(title = "Top Songs") {
                     topSongs.forEachIndexed { index, topSong ->
@@ -1995,6 +2046,7 @@ fun ChartsScreen(nav: NavHostController, vm: MusicViewModel) {
         }
         BottomNavigationBar(nav = nav, modifier = Modifier.align(Alignment.BottomCenter))
     }
+
 }
 
 // Helper composable for a section title
@@ -2114,10 +2166,9 @@ fun LibraryScreen(nav: NavHostController, vm: MusicViewModel) {
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
     ) {
-
         Column(Modifier
             .fillMaxSize()
-            .padding(top = 20.dp)) {
+            .padding(top = 40.dp)) {
 
             // ---------------- Top Bar ----------------
             Row(
@@ -2129,16 +2180,16 @@ fun LibraryScreen(nav: NavHostController, vm: MusicViewModel) {
             ) {
                 Icon(
                     Icons.Default.Menu,
-                    contentDescription = "Menu", // Add content description
+                    contentDescription = "Menu",
                     tint = Color.White,
                     modifier = Modifier
                         .size(28.dp)
-                        .clickable { vm.openDrawer() } // ⭐️ FIX
+                        .clickable { vm.openDrawer() }
                 )
                 Text(
                     "Library",
                     fontSize = 26.sp,
-                    color = Color(0xFFE40074),
+                    color = Color.White,
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(Modifier.width(28.dp)) // empty right side for symmetry
@@ -2165,7 +2216,7 @@ fun LibraryScreen(nav: NavHostController, vm: MusicViewModel) {
 
             LibraryItem(Icons.Default.ShowChart, "Stats") {
                 nav.navigate("charts")
-        }
+            }
 
             Spacer(Modifier.height(120.dp)) // space for mini-player + bottom bar
         }
@@ -2242,15 +2293,9 @@ fun MyMusicScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boo
         Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
+            .padding(top = 40.dp)
     ) {
-
         Column(Modifier.fillMaxSize()) {
-
-            Spacer(Modifier.height(18.dp))
-
-            // Top Bar
-
-            Spacer(Modifier.height(12.dp))
 
             Text("My Music", color = Color(0xFFE40074), fontSize = 32.sp, modifier = Modifier.padding(start = 20.dp))
 
@@ -2367,8 +2412,9 @@ fun FavoratesScreen(nav: NavHostController, vm: MusicViewModel) {
         Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF1F1F1F), Color.Black)))
+            .padding(top = 40.dp)
     ) {
-
+        Spacer(Modifier.height(36.dp))
         Column(
             Modifier
                 .fillMaxSize()
