@@ -36,6 +36,7 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
         Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
+            .padding(top = 40.dp)
     ) {
         Column(Modifier.fillMaxSize()) {
             // --- Top Bar ---

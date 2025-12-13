@@ -3,11 +3,14 @@ package com.example.moremusic
 import com.example.moremusic.ui.theme.theme.MoreMusicTheme
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
+import android.app.RecoverableSecurityException
 import android.content.ComponentName
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
@@ -21,6 +24,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
@@ -249,6 +253,9 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _drawerShouldBeOpen = MutableStateFlow(false)
     val drawerShouldBeOpen = _drawerShouldBeOpen.asStateFlow()
+
+    private val _pendingDeleteRequest = MutableStateFlow<Pair<IntentSender, Song>?>(null)
+    val pendingDeleteRequest = _pendingDeleteRequest.asStateFlow()
 
     fun openDrawer() {
         _drawerShouldBeOpen.value = true
@@ -619,18 +626,74 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         favoritesManager.saveLikedSongs(likedSongs)
     }
 
-    fun deleteSong(song: Song) {
-        val updatedList = _songs.value.toMutableList().apply {
-            remove(song)
-        }
-        _songs.value = updatedList
+    private fun postDeletionCleanup(song: Song) {
+        val updatedSongs = _songs.value.filter { it.id != song.id }
+        _songs.value = updatedSongs
 
-        // If the deleted song is the current one, clear it
         if (_current.value?.id == song.id) {
-            _current.value = null
             player?.stop()
+            _current.value = null
+        }
+
+        val updatedPlaylists = _playlists.value.map { playlist ->
+            playlist.copy(songIds = playlist.songIds.filter { it != song.id })
+        }
+        _playlists.value = updatedPlaylists
+        playlistManager.savePlaylists(updatedPlaylists)
+
+        if (likedSongs.contains(song)) {
+            likedSongs.remove(song)
+            favoritesManager.saveLikedSongs(likedSongs)
         }
     }
+
+    fun deleteSongRequestCancelled() {
+        _toastMessage.value = "Deletion was cancelled."
+        _pendingDeleteRequest.value = null
+    }
+
+    fun finalizeDelete(song: Song) {
+        postDeletionCleanup(song)
+        _toastMessage.value = "Song deleted."
+        _pendingDeleteRequest.value = null
+    }
+
+    // In MusicViewModel.kt
+
+    fun deleteSong(context: Context, song: Song) {
+        viewModelScope.launch {
+            try {
+                // Use the ContentResolver to delete the file via its URI
+                context.contentResolver.delete(song.uri, null, null)
+
+                // If successful, remove the song from the UI and show a confirmation
+                _songs.value = _songs.value.filter { it.id != song.id }
+                _toastMessage.value = "Deleted \"${song.title}\""
+
+            } catch (e: SecurityException) {
+                // This is the crucial part for Android 10+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val recoverableException = e as? RecoverableSecurityException
+                    if (recoverableException != null) {
+                        // Store the intent sender so the UI can launch it
+                        _pendingDeleteRequest.value = Pair(recoverableException.userAction.actionIntent.intentSender, song)
+                    } else {
+                        // Generic error if the exception is not recoverable
+                        _toastMessage.value = "Could not delete file: Permission denied."
+                    }
+                } else {
+                    // For older Android versions, if you get a SecurityException, you likely don't have permission
+                    _toastMessage.value = "Could not delete file: Permission denied."
+                }
+            }
+        }
+    }
+
+    // Add a function to clear the pending request after it's handled
+    fun clearPendingDeleteRequest() {
+        _pendingDeleteRequest.value = null
+    }
+
 
 
     fun next() = player?.seekToNext()
@@ -743,8 +806,8 @@ fun SongMenuSheet(
                 text = "Delete from device",
                 isDestructive = true
             ) {
-                vm.deleteSong(song)
                 vm.dismissMenu()
+                vm.deleteSong(context, song)
             }
         }
     }
@@ -1018,6 +1081,27 @@ fun MusicApp() {
             vm.closeDrawer()
         }
     }
+
+    val pendingDeleteRequest by vm.pendingDeleteRequest.collectAsState()
+    val deleteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            pendingDeleteRequest?.second?.let { songToDelete ->
+                vm.finalizeDelete(songToDelete)
+            }
+        } else {
+            vm.deleteSongRequestCancelled()
+        }
+    }
+
+    LaunchedEffect(pendingDeleteRequest) {
+        pendingDeleteRequest?.let { (intentSender, _) ->
+            val request = IntentSenderRequest.Builder(intentSender).build()
+            deleteLauncher.launch(request)
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -1094,6 +1178,41 @@ fun MusicApp() {
             initialValue = ModalBottomSheetValue.Hidden,
             skipHalfExpanded = true
         )
+        // In MainActivity.kt, inside your main Composable function (e.g., inside setContent)
+
+// ... existing code
+        val context = LocalContext.current
+        val viewModel: MusicViewModel = viewModel() // Get your ViewModel instance
+        val pendingDeleteRequest by viewModel.pendingDeleteRequest.collectAsState()
+
+// 1. Create the ActivityResultLauncher
+        val deleteRequestLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult(),
+        ) { result ->
+            // This callback runs after the user responds to the permission dialog
+            if (result.resultCode == Activity.RESULT_OK) {
+                // The user granted permission!
+                // We need to re-attempt the deletion.
+                pendingDeleteRequest?.second?.let { songToDelete ->
+                    Toast.makeText(context, "Permission granted. Deleting file...", Toast.LENGTH_SHORT).show()
+                    viewModel.deleteSong(context, songToDelete)
+                }
+            } else {
+                // The user denied the permission
+                Toast.makeText(context, "Permission to delete was denied.", Toast.LENGTH_SHORT).show()
+            }
+            viewModel.clearPendingDeleteRequest()
+        }
+
+        LaunchedEffect(pendingDeleteRequest) {
+            pendingDeleteRequest?.let { (intentSender, _) ->
+                val intentSenderRequest = IntentSenderRequest.Builder(intentSender).build()
+                deleteRequestLauncher.launch(intentSenderRequest)
+            }
+        }
+
+// ... rest of your UI code
+
         LaunchedEffect(menuState) {
             if (menuState != null) {
                 menuSheetState.show()
@@ -2278,6 +2397,7 @@ fun MyMusicScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boo
     val songs by vm.songs.collectAsState()
     val current by vm.current.collectAsState()
     val isPlaying by vm.isPlaying.collectAsState()
+    val context = LocalContext.current
 
     // ---------------- Search State ----------------
     var searchQuery by remember { mutableStateOf("") }
@@ -2361,7 +2481,7 @@ fun MyMusicScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boo
                                 vm.playSong(song, songs)
                                 nav.navigate("player")
                             },
-                            onDelete = { vm.deleteSong(it) },
+                            onDelete = { vm.deleteSong(context,it) },
                             onToggleLike = { vm.toggleLike(it) },
                             onShowMenu = { vm.showMenuForSong(it, null) }, // <-- Pass the ViewModel function
                             isLiked = vm.likedSongs.contains(song)
@@ -2662,4 +2782,3 @@ fun openUrl(context: Context, url: String) {
     }
     context.startActivity(intent)
 }
-
