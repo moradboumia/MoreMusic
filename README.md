@@ -27,4 +27,16 @@ It scans all audio files on your device and provides a clean and smooth music ex
 - **Permissions API**
 
 ---
+---
 
+## 🔒 Privacy Policy
+
+MoreMusic respects your privacy.
+
+- ✅ No personal data is collected
+- ✅ No usage tracking or analytics
+- ✅ No advertisements
+- ✅ No internet connection required
+- ✅ No data is shared with third parties
+
+MoreMusic works entirely **offline** and only accesses local audio files on your device to scan and play your music.
