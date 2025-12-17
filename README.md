@@ -40,3 +40,6 @@ MoreMusic respects your privacy.
 - ✅ No data is shared with third parties
 
 MoreMusic works entirely **offline** and only accesses local audio files on your device to scan and play your music.
+## License
+MIT License
+
