@@ -1,0 +1,27 @@
+Categories:
+
+* Multimedia
+
+License: MIT
+
+AuthorName: Morad Boumia
+AuthorEmail: [m.boumia2001@email.com]
+
+SourceCode: [https://github.com/moradboumia/MoreMusic]
+IssueTracker: [https://github.com/moradboumia/MoreMusic/issues]
+
+AutoName: MoreMusic
+
+Summary: Simple local music player
+
+Description: |
+MoreMusic is a fast and simple local music player for Android.
+It scans audio files stored on the device and plays them
+with a clean and modern interface.
+
+Features:
+
+* Plays local audio files only
+* No ads
+* No tracking
+* No internet required
