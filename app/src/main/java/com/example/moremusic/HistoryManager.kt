@@ -1,4 +1,3 @@
-// Create a new file: HistoryManager.kt
 package com.example.moremusic
 
 import android.content.Context
@@ -19,7 +18,6 @@ class HistoryManager(context: Context) {
     fun recordSongPlay(songId: Long) {
         val history = loadHistory().toMutableList()
         history.add(PlayHistoryEvent(songId = songId))
-        // Optional: Trim the history to prevent it from getting too large
         if (history.size > 2000) {
             history.removeAt(0)
         }

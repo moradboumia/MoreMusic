@@ -28,10 +28,8 @@ fun PlaylistDetailScreen(
     val playlists by vm.playlists.collectAsState()
     val allSongs by vm.songs.collectAsState()
 
-    // Find the specific playlist from the ID passed during navigation
     val playlist = playlists.find { it.id == playlistId }
 
-    // Find all the Song objects that are in this playlist
     val songsInPlaylist = playlist?.songIds?.mapNotNull { songId ->
         allSongs.find { it.id == songId }
     } ?: emptyList()
@@ -43,7 +41,6 @@ fun PlaylistDetailScreen(
             .padding(top=40.dp)
     ) {
         Column(Modifier.fillMaxSize()) {
-            // --- Top Bar ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -57,7 +54,6 @@ fun PlaylistDetailScreen(
                     modifier = Modifier.clickable { nav.popBackStack() }
                 )
                 Spacer(Modifier.width(16.dp))
-                // Display the playlist name, or "Playlist" if not found
                 Text(
                     playlist?.name ?: "Playlist",
                     fontSize = 26.sp,
@@ -66,7 +62,6 @@ fun PlaylistDetailScreen(
                 )
             }
 
-            // --- List of Songs ---
             if (songsInPlaylist.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -77,15 +72,12 @@ fun PlaylistDetailScreen(
             } else {
                 LazyColumn {
                     items(songsInPlaylist, key = { it.id }) { song ->
-                        // ⭐️⭐️⭐️ THIS IS THE ONLY CHANGE YOU NEED ⭐️⭐️⭐️
-                        // Rename this function call from "SongRow" to "PlaylistSongRow"
                         PlaylistSongRow(
                             song = song,
                             onClick = {
                                 vm.playSong(song, songsInPlaylist)
                                 nav.navigate("player")
                             },
-                            // This onShowMenu lambda is now passed to the correct, unambiguous composable
                             onShowMenu = { vm.showMenuForSong(it, playlistId) },
                             isLiked = vm.likedSongs.contains(song)
                         )

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -64,30 +65,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-
     implementation(libs.androidx.compose.material.icons.extended)
-
-
-
-// Compose
     implementation(libs.androidx.ui)
     implementation(libs.androidx.compose.material)
-// Coil for artwork
     implementation(libs.coil.compose)
-// Permissions
     implementation(libs.accompanist.permissions)
-
-    implementation(libs.guava) // Or latest version
+    implementation(libs.guava)
     implementation(libs.gson)
-
-    // Media3 / ExoPlayer
     implementation(libs.androidx.media3.exoplayer.v150)
     implementation(libs.androidx.media3.session.v150)
     implementation(libs.androidx.media3.ui.v150)
-// (optional) for MediaNotification helper if needed
     implementation(libs.androidx.media)
 }

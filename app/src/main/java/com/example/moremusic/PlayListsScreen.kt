@@ -39,7 +39,6 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
             .padding(top = 40.dp)
     ) {
         Column(Modifier.fillMaxSize()) {
-            // --- Top Bar ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -56,7 +55,6 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
                 Text("Playlists", fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
             }
 
-            // --- "Create New Playlist" Button ---
             PlaylistItem(
                 icon = Icons.Default.Add,
                 label = "Create new playlist",
@@ -67,7 +65,6 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
 
             Divider(color = Color.Gray.copy(alpha = 0.3f), modifier = Modifier.padding(horizontal = 20.dp))
 
-            // --- List of Existing Playlists ---
             LazyColumn {
                 items(playlists, key = { it.id }) { playlist ->
                     PlaylistItem(
@@ -76,7 +73,6 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
                         onClick = {
                             nav.navigate("playlist_detail/${playlist.id}")
                         },
-                        // ⭐️ 3. Add the "More" icon to each playlist
                         trailingIcon = {
                             IconButton(onClick = { playlistToDelete = playlist }) {
                                 Icon(Icons.Default.Delete, contentDescription = "Delete playlist", tint = Color.Gray)
@@ -88,7 +84,6 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
         }
     }
 
-    // --- Create Playlist Dialog ---
     if (showCreateDialog) {
         CreatePlaylistDialog(
             onDismiss = { showCreateDialog = false },
@@ -107,7 +102,7 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
                 TextButton(
                     onClick = {
                         vm.deletePlaylist(playlist)
-                        playlistToDelete = null // Close the dialog
+                        playlistToDelete = null
                     }
                 ) {
                     Text("Delete", color = Color(0xFFE40074))
@@ -130,7 +125,7 @@ fun PlaylistItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     color: Color = Color.White,
-    trailingIcon: (@Composable () -> Unit)? = null, // New optional parameter
+    trailingIcon: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -144,7 +139,6 @@ fun PlaylistItem(
         Spacer(Modifier.width(18.dp))
         Text(label, color = color, fontSize = 18.sp, modifier = Modifier.weight(1f)) // Give text weight to push icon to the end
 
-        // Display the trailing icon if it's provided
         if (trailingIcon != null) {
             Spacer(Modifier.width(16.dp))
             trailingIcon()

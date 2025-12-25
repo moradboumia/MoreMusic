@@ -1,6 +1,6 @@
 [versions]
 accompanistPermissions = "0.37.3"
-agp = "8.12.0"
+agp = "8.13.2"
 androidxMedia3Exoplayer = "1.8.0"
 androidxMedia3ExoplayerVersion = "1.8.0"
 androidxMedia3Ui = "1.8.0"
