@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.moremusic.model.Song
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun FavoratesScreen(nav: NavHostController, vm: MusicViewModel) {
@@ -54,10 +55,8 @@ fun FavoratesScreen(nav: NavHostController, vm: MusicViewModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF1F1F1F), Color.Black)))
-            .padding(top = 40.dp)
+            .background(background)
     ) {
-        Spacer(Modifier.height(36.dp))
         Column(
             Modifier
                 .fillMaxSize()

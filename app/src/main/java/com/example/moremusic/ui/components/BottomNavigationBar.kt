@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.moremusic.ui.theme.backgroundPrime
 
 @Composable
 fun BottomNavigationBar(nav: NavHostController, modifier: Modifier = Modifier) {
@@ -33,7 +34,7 @@ fun BottomNavigationBar(nav: NavHostController, modifier: Modifier = Modifier) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     Surface(
-        color = Color.Black,
+        color = backgroundPrime,
         tonalElevation = 12.dp,
         modifier = modifier
             .fillMaxWidth()

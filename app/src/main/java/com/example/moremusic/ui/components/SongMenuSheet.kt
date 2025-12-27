@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.example.moremusic.model.Song
 import com.example.moremusic.util.shareSong
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.backgroundPrime
 
 @Composable
 fun SongMenuSheet(
@@ -46,7 +47,7 @@ fun SongMenuSheet(
     val context = LocalContext.current
     Column(
         Modifier
-            .background(Color(0xFF2C2C2C))
+            .background(backgroundPrime)
             .padding(top = 8.dp, bottom = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

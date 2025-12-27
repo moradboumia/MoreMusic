@@ -58,6 +58,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.moremusic.util.shareSong
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.background
+import com.example.moremusic.ui.theme.backgroundPrime
 
 @Composable
 fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
@@ -87,12 +89,11 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Black)
+            .background(background)
             .padding(horizontal = 22.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(Modifier.height(46.dp))
 
         Row(
             Modifier.fillMaxWidth(),
@@ -233,6 +234,8 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
                     )
                 }
             }
+
+
 
             IconButton(onClick = { vm.next() }) {
                 Icon(Icons.Default.SkipNext, contentDescription = null, tint = White)

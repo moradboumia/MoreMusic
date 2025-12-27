@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import com.example.moremusic.ui.components.BottomNavigationBar
 import com.example.moremusic.ui.components.MiniPlayer
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun LibraryScreen(nav: NavHostController, vm: MusicViewModel) {
@@ -48,11 +49,11 @@ fun LibraryScreen(nav: NavHostController, vm: MusicViewModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
+            .background(background)
     ) {
         Column(Modifier
             .fillMaxSize()
-            .padding(top = 40.dp)) {
+             ) {
 
             Row(
                 Modifier

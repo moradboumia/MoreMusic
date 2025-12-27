@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.moremusic.MusicViewModel
 import com.example.moremusic.model.Song
+import com.example.moremusic.ui.theme.backgroundPrime
 
 @Composable
 fun QueueSheet(vm: MusicViewModel) {
@@ -41,7 +42,7 @@ fun QueueSheet(vm: MusicViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.45f)
-            .background(Color(0xFF1C1C1C))
+            .background(backgroundPrime)
             .padding(top = 2.dp, bottom = 0.dp),
     ) {
         if (mediaItemsInQueue.isEmpty() || allSongs.isEmpty()) {

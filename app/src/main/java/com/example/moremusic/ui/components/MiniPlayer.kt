@@ -30,13 +30,14 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.moremusic.MusicViewModel
 import com.example.moremusic.model.Song
+import com.example.moremusic.ui.theme.backgroundPrime
 
 @Composable
 fun MiniPlayer(song: Song, isPlaying: Boolean, vm: MusicViewModel, openPlayer: () -> Unit) {
     Surface(
         tonalElevation = 8.dp,
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF3D1427),
+        color = backgroundPrime,
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)

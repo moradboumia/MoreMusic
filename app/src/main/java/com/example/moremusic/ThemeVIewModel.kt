@@ -31,4 +31,14 @@ class ThemeViewModel(application: Application) : ViewModel() {
         val savedTheme = sharedPreferences.getString("theme", Theme.SYSTEM.name)
         return Theme.valueOf(savedTheme ?: Theme.SYSTEM.name)
     }
+
+    fun toggleTheme() {
+        val currentTheme = _theme.value
+        val nextTheme = when (currentTheme) {
+            Theme.LIGHT -> Theme.DARK
+            Theme.DARK -> Theme.SYSTEM
+            Theme.SYSTEM -> Theme.LIGHT
+        }
+        setTheme(nextTheme)
+    }
 }

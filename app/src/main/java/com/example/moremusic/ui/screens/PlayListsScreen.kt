@@ -1,4 +1,4 @@
-package com.example.moremusic
+package com.example.moremusic.ui.screens
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,20 +12,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.moremusic.MusicViewModel
 import com.example.moremusic.model.Playlist
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
@@ -36,8 +37,7 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
-            .padding(top = 40.dp)
+            .background(background)
     ) {
         Column(Modifier.fillMaxSize()) {
             Row(
@@ -123,7 +123,7 @@ fun PlaylistsScreen(nav: NavController, vm: MusicViewModel) {
 
 @Composable
 fun PlaylistItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     label: String,
     color: Color = Color.White,
     trailingIcon: (@Composable () -> Unit)? = null,

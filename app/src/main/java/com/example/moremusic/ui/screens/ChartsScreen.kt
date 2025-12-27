@@ -44,6 +44,7 @@ import com.example.moremusic.model.Song
 import com.example.moremusic.ui.components.BottomNavigationBar
 import com.example.moremusic.ui.components.MiniPlayer
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun ChartsScreen(nav: NavHostController, vm: MusicViewModel) {
@@ -61,17 +62,17 @@ fun ChartsScreen(nav: NavHostController, vm: MusicViewModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
+            .background(background)
     ) {
             LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 60.dp,top=30.dp)
+            contentPadding = PaddingValues(bottom = 10.dp,top=10.dp)
         ) {
             item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(20.dp),
+                        .padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {

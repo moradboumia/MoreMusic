@@ -41,6 +41,7 @@ import com.example.moremusic.model.Album
 import com.example.moremusic.ui.components.BottomNavigationBar
 import com.example.moremusic.ui.components.MiniPlayer
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun AlbumScreen(nav: NavController, vm: MusicViewModel) {
@@ -53,7 +54,7 @@ fun AlbumScreen(nav: NavController, vm: MusicViewModel) {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
+            .background(background)
     ) {
         Column(Modifier.fillMaxSize()) {
             Row(
@@ -63,8 +64,7 @@ fun AlbumScreen(nav: NavController, vm: MusicViewModel) {
                     .padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ) {        Spacer(Modifier.height(60.dp))
-
+            ) {
                 Text("Albums", fontSize = 26.sp, color = Color.White, fontWeight = FontWeight.SemiBold)
             }
 

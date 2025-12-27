@@ -42,6 +42,7 @@ import com.example.moremusic.ui.components.BottomNavigationBar
 import com.example.moremusic.ui.components.MiniPlayer
 import com.example.moremusic.ui.components.SongRow
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun MyMusicScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boolean) {
@@ -62,8 +63,7 @@ fun MyMusicScreen(nav: NavHostController, vm: MusicViewModel, hasPermission: Boo
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
-            .padding(top = 40.dp)
+            .background(background)
     ) {
         Column(Modifier.fillMaxSize()) {
 

@@ -5,7 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,8 +32,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.backgroundPrime
 import com.example.moremusic.util.openUrl
+import com.example.moremusic.MusicViewModel
 
 @Composable
 fun AppDrawerContent(nav: NavController, vm: MusicViewModel) {
@@ -42,8 +43,9 @@ fun AppDrawerContent(nav: NavController, vm: MusicViewModel) {
 
     Column(
         Modifier
-            .fillMaxSize()
-            .background(Color(0xFF191919).copy(alpha = 0.98f))
+            .fillMaxHeight()
+            .width(280.dp)
+            .background(backgroundPrime.copy(alpha = 0.98f))
             .padding(start = 24.dp, top = 68.dp, end = 24.dp)
     ) {
         Text(

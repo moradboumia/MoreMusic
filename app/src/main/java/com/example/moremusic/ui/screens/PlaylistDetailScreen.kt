@@ -1,5 +1,5 @@
 // Create a new file: PlaylistDetailScreen.kt
-package com.example.moremusic
+package com.example.moremusic.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,13 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.moremusic.MusicViewModel
 import com.example.moremusic.ui.components.PlaylistSongRow
+import com.example.moremusic.ui.theme.background
 
 @Composable
 fun PlaylistDetailScreen(
@@ -38,8 +39,7 @@ fun PlaylistDetailScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF111111), Color.Black)))
-            .padding(top=40.dp)
+            .background(background)
     ) {
         Column(Modifier.fillMaxSize()) {
             Row(

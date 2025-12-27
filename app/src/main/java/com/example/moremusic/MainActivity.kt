@@ -13,10 +13,11 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -60,22 +62,20 @@ import com.example.moremusic.ui.screens.HomeScreen
 import com.example.moremusic.ui.screens.LibraryScreen
 import com.example.moremusic.ui.screens.MyMusicScreen
 import com.example.moremusic.ui.screens.PlayerScreen
-import com.example.moremusic.ui.theme.theme.MoreMusicTheme
+import com.example.moremusic.ui.screens.PlaylistDetailScreen
+import com.example.moremusic.ui.screens.PlaylistsScreen
+import com.example.moremusic.ui.theme.background
+import com.example.moremusic.MusicViewModel
 import com.example.moremusic.viewmodels.ViewModelFactory
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.analytics
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private lateinit var analytics: FirebaseAnalytics
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
-        analytics = Firebase.analytics
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        window.statusBarColor = background.toArgb()
+        window.navigationBarColor = background.toArgb()
         setContent {
-            MoreMusicTheme { MusicApp() }
+           MusicApp()
         }
     }
 }
@@ -308,7 +308,12 @@ fun MusicApp() {
                     }
                 ) {
                     MaterialTheme(colorScheme = darkColorScheme(primary = Color(0xFFE40074))) {
-                        NavHost(navController = nav, startDestination = "home") {
+                        NavHost(
+                            navController = nav, 
+                            startDestination = "home",
+                            enterTransition = { EnterTransition.None },
+                            exitTransition = { ExitTransition.None }
+                        ) {
                             composable("home") { HomeScreen(nav, vm, hasPermission) }
                             composable("my_music") { MyMusicScreen(nav, vm, hasPermission) }
                             composable("player") { PlayerScreen(nav, vm) }
@@ -321,7 +326,11 @@ fun MusicApp() {
                                 val playlistId =
                                     backStackEntry.arguments?.getString("playlistId")?.toLongOrNull()
                                 if (playlistId != null) {
-                                    PlaylistDetailScreen(playlistId = playlistId, nav = nav, vm = vm)
+                                    PlaylistDetailScreen(
+                                        playlistId = playlistId,
+                                        nav = nav,
+                                        vm = vm
+                                    )
                                 }
                             }
                         }

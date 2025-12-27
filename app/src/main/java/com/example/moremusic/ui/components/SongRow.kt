@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.moremusic.model.Song
 import com.example.moremusic.MusicViewModel
+import com.example.moremusic.ui.theme.backgroundPrime
 
 
 @Composable
@@ -57,7 +58,7 @@ fun SongRow(
                 contentDescription = song.title,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.DarkGray, RoundedCornerShape(8.dp)),
+                    .background(backgroundPrime, RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
         }
