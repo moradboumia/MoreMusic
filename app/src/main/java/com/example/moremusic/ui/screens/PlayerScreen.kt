@@ -3,7 +3,16 @@ package com.example.moremusic.ui.screens
 import android.content.Context
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +40,7 @@ import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
@@ -219,20 +229,37 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
             IconButton(onClick = { vm.previous() }) {
                 Icon(Icons.Default.SkipPrevious, contentDescription = null, tint = White)
             }
-
-            IconButton(onClick = { vm.togglePlayPause() }) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = White,
-                    modifier = Modifier.size(68.dp)
-                ) {
-                    Icon(
-                        if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        tint = DarkPink,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
+            Box(
+                modifier = Modifier
+                    .size(62.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFFD1D4DE))
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    vm.togglePlayPause()
+                                },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AnimatedContent(
+                            targetState = isPlaying,
+                            transitionSpec = {
+                                fadeIn(tween(120)) + scaleIn(initialScale = 0.85f) togetherWith
+                                        fadeOut(tween(120)) + scaleOut(targetScale = 0.85f)
+                            },
+                            label = "PlayPause"
+                        ) { playing ->
+                            Icon(
+                                imageVector = if (playing)
+                                    Icons.Filled.Pause
+                                else
+                                    Icons.Filled.PlayArrow,
+                                contentDescription = null,
+                                tint = Color(0xFF1C1C1C),
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
             }
 
 
