@@ -92,7 +92,7 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
         return
     }
 
-    val DarkPink = Color(0xFFB30059)
+    val DarkPink = Color(0xFFE40074)
     val White = Color.White
     val Black = Color.Black
 
@@ -233,7 +233,7 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
                 modifier = Modifier
                     .size(62.dp)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFFD1D4DE))
+                                .background(Color(0xFF2B2A2A))
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
@@ -256,7 +256,7 @@ fun PlayerScreen(nav: NavHostController, vm: MusicViewModel) {
                                 else
                                     Icons.Filled.PlayArrow,
                                 contentDescription = null,
-                                tint = Color(0xFF1C1C1C),
+                                tint = Color.White,
                                 modifier = Modifier.size(32.dp)
                             )
                         }

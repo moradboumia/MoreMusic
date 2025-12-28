@@ -65,7 +65,6 @@ import com.example.moremusic.ui.screens.PlayerScreen
 import com.example.moremusic.ui.screens.PlaylistDetailScreen
 import com.example.moremusic.ui.screens.PlaylistsScreen
 import com.example.moremusic.ui.theme.background
-import com.example.moremusic.MusicViewModel
 import com.example.moremusic.viewmodels.ViewModelFactory
 
 class MainActivity : ComponentActivity() {

@@ -210,6 +210,10 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
                 val newSong = _songs.value.find { it.uri == uri }
                 _current.value = newSong
                 _currentSongIndex.value = player?.currentMediaItemIndex ?: 0
+
+                newSong?.let {
+                    historyManager.recordSongPlay(it.id)
+                }
             }
 
             override fun onTimelineChanged(timeline: Timeline, reason: Int) {
@@ -341,7 +345,6 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun playSong(clicked: Song, queue: List<Song>) {
-        historyManager.recordSongPlay(clicked.id)
         viewModelScope.launch {
 
             player?.apply {
@@ -498,16 +501,5 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
         super.onCleared()
         player?.release()
         player = null
-    }
-}
-
-class MusicViewModelFactory(private val application: Application) :
-    ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MusicViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MusicViewModel(application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
